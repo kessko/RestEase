@@ -28,10 +28,9 @@ namespace RestEaseUnitTests.RequesterTests
         }
 
         [Fact]
-        public void SetsContentNullIfBodyValueIsNull()
+        public void SetsContentNullIfBodyParameterInfoIsNull()
         {
             var requestInfo = new RequestInfo(HttpMethod.Get, "foo");
-            requestInfo.SetBodyParameterInfo<object>(BodySerializationMethod.Serialized, null);
             var content = this.requester.ConstructContent(requestInfo);
             Assert.Null(content);
         }
@@ -74,6 +73,24 @@ namespace RestEaseUnitTests.RequesterTests
             var content = this.requester.ConstructContent(requestInfo);
 
             Assert.IsType<ByteArrayContent>(content);
+        }
+
+        [Fact]
+        public void SetsContentAsStringContentIfContentBodyIsObjectAndValueIsNull()
+        {
+            var requestInfo = new RequestInfo(HttpMethod.Get, "foo");
+            requestInfo.SetBodyParameterInfo<object>(BodySerializationMethod.Serialized, null);
+            var content = this.requester.ConstructContent(requestInfo);
+            Assert.IsType<StringContent>(content);
+        }
+
+        [Fact]
+        public async Task SetsStringContentValueAsNullStringValueIfContentBodyIsObjectAndValueIsNull()
+        {
+            var requestInfo = new RequestInfo(HttpMethod.Get, "foo");
+            requestInfo.SetBodyParameterInfo<object>(BodySerializationMethod.Serialized, null);
+            var contentValue = await this.requester.ConstructContent(requestInfo).ReadAsStringAsync();
+            Assert.Equal("null", contentValue, ignoreCase: true);
         }
 
         [Fact]
